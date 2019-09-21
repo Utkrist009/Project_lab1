@@ -42,12 +42,12 @@ module Motor_direction(
     
     
     assign direction = sw[11:8];
-    MOTOR_mv u1(
+    MOTOR u1(
         .clk(clk),
         .sw(sw[7:0]),
         .PWM_output(enable[0]));
 
-    MOTOR_mv u2(
+    MOTOR u2(
         .clk(clk),
         .sw(sw[7:0]),
         .PWM_output(enable[1]));
@@ -61,4 +61,3 @@ module Motor_direction(
     
     
 endmodule
-
