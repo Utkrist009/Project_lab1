@@ -6,13 +6,10 @@
 // Design Name: 
 // Module Name: SSD
 // Project Name:
-// Revision:
 // Revision 0.01 - File Created
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-
-
 module SSD(
 input clk,
      output reg [3:0] an,      // 4 Digits on Basys 3 Board
@@ -52,9 +49,7 @@ input clk,
           2'b11:
                begin
                     an = 4'b1110; //Digit 4
-                    seg = 7'b10000001;//Displays "U" for under
+                    seg = 7'b1000001;//Displays "U" for under
                end
 endcase
-
-
 endmodule
