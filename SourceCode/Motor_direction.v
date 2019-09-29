@@ -36,8 +36,11 @@
 module Motor_direction(
    input clk,
    input [11:0]sw,
+   input comparator,
    output [3:0] direction, 
-   output [1:0]enable
+   output [1:0]enable,
+   output [3:0] an,
+   output [6:0] seg
     );
     
     
@@ -51,7 +54,14 @@ module Motor_direction(
         .clk(clk),
         .sw(sw[7:0]),
         .PWM_output(enable[1]));
-    
+   
+    SSD x1(
+        .clk(clk),
+        .comparator(comparator),
+        .sw(sw[11:8]),
+        .an(an),
+        .seg(seg));
+                    
 //    always @(*)
 //    case(sw)
 //    4'b0001: direction = 2'b01;
