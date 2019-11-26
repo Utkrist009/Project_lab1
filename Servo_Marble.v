@@ -1,127 +1,104 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 11/26/2019 02:17:47 AM
-// Design Name: 
+// Create Date: 11/17/2019 12:50:58 PM
 // Module Name: Servo_Marble
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
+// Description:
+// This will take in a signal from the Moisture sensor and decide how many marbles
+// to dispense.
 //////////////////////////////////////////////////////////////////////////////////
 
-
 module Servo_Marble(
-input clk, reset,
-input sw,
-//output 
-output enable_m,
-output reg led
-);
+    input clk,
+    input enable_servo_marble,
+    input marble,
+    output reg [20:0] angle_value,
+    output reg done_servo_marble
+   );
 
-wire timerDone;
-reg timerActive= 0;
-reg [3:0] Seconds = 4'b0000;
-reg done_servo_marble = 0;
+   localparam INIT_STATE = 0, STATE_1 = 1, STATE_2 = 2, STATE_3 = 3;
+   
+   reg state;
+   reg [1:0] count;
+   reg [31:0] count_delay;
+   reg [1:0]  marble_sync;
 
+   reg start_count;
+   reg done_count;
 
-wire n_clk; 
+   initial
+     begin
+        angle_value <= 0;
+        state <= 0;
+        count <= 0;
+        count_delay <= 0;
+        start_count <= 0;
+        done_count <= 0;
+        marble_sync <= 0;
+        done_servo_marble <= 0;
+     end
 
-localparam servo90d=18'd145000,servo180d=18'd65000,servo0d=18'd240000,servo30d=18'd200000,servo150d=18'd95000,servo135d = 18'd110000;
+   // D-Flip Flop
+   always @ (posedge clk)
+     marble_sync <= marble;
 
-reg [17:0] angle_value_marble = servo180d;
-//reg [17:0] angle_value_servo2 = servo90d;
-//localparam servo90d=3,servo180d=6,servo0d=1,servo30d=2,servo150d=5,servo135d=4;
+   // Counter
+   always @ (posedge clk)
+     begin
+        if (start_count)
+          count_delay <= count_delay + 1;
+        // Half a second
+        if (count_delay >= 50_000_000)
+          done_count <= 1;
+     end
 
+   // State machine
+   always @(posedge clk)
+     begin
+        if (enable_servo_marble)
+          case(state)
+            INIT_STATE:
+              begin
+                 count <= count+1;
+                 if(count<marble_sync)
+                   state <= STATE_2;
+                 else
+                   begin
+                      state <= INIT_STATE;
+                      done_servo_marble <= 1;
+                   end
+              end
+            STATE_2: 
+              begin
+                 angle_value <= 20'd230000;
+                 start_count <= 1; 
+                 if(done_count)
+                   begin
+                      start_count <= 0;
+                      state <= STATE_3;
+                   end
+              end
 
-// Second_Counter delay(.clk(clk),.reset(reset),.n_clk(n_clk));
-//Second_Counter delay(.clk(clk));
- reg[2:0] Marble_FSM = 3'b000; 
- 
-Servo_PWM marble(
-.clk(clk),
-.angle_value(angle_value_marble),
-.angle(enable_m));
-
-/*Servo_PWM servo2(
-.clk(clk),
-.angle_value(angle_value_servo2),
-.angle(enable2));
-*/
-
-delay_seconds test(.clk(clk), .limit(Seconds), .active(timerActive), .signal(timerDone));
-//localparam DELAY = 10000;
-//reg [DELAY-1:0] shift_reg;
-//always @(posedge clk)
-// begin
-// shift_reg <= {shift_reg[DELAY-2:0], enable_temp};
-// end 
-//assign enable2 = shift_reg[DELAY-1];
- 
- always @(posedge clk)
- begin
- if (sw)
- case (Marble_FSM)
- 3'b000:
- begin 
- angle_value_marble <= servo180d;
- //angle_value_servo2 <= servo90d;
- Seconds = 1; //period set to 2M so 4sec delay
- timerActive = 1;
- if (timerDone)
- begin
- timerActive = 0;
- Seconds = 0;
- Marble_FSM = 3'b001;
- end
- end 
- 
- 3'b001:
- begin 
- angle_value_marble <= servo0d;
- Seconds = 1; //period set to 2M so 4sec delay
- timerActive = 1;
- if (timerDone)
- begin
- timerActive = 0;
- Seconds = 0;
- Marble_FSM = 3'b010;
- end
- end 
- 
- 3'b010:
- begin 
- angle_value_marble <= servo180d;
- Seconds = 1; //period set to 2M so 4sec delay
- timerActive = 1;
- if (timerDone)
- begin
- timerActive = 0;
- Seconds = 0;
- Marble_FSM = 3'b011;
- end
- end 
- 
- 3'b011:
- begin 
- done_servo_marble = 1;
- if (done_servo_marble)
- begin 
-    led = 1;
-  end
- end 
- 
- endcase 
- end 
-
+            STATE_3: 
+              begin 
+                 angle_value <= 20'd65000;
+                 start_count <= 1; 
+                 if(done_count)
+                   begin
+                      start_count <= 0;
+                      state <= INIT_STATE;
+                   end
+              end
+            default: state<=INIT_STATE;
+          endcase // case (state)
+        else
+          begin
+             done_servo_marble <= 0;
+             state <= INIT_STATE;
+             angle_value <= 0;
+             count <= 0;
+             count_delay <= 0;
+             start_count <= 0;
+          end  
+     end // always @ (posedge clk)
 
 endmodule
