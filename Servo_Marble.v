@@ -8,10 +8,11 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 module Servo_Marble(
-    input             clk, rst,
+    input             clk, 
+    // input rst,
     input             enable_servo_marble,//from Main SM
     input [1:0]       marble,
-    output reg [19:0] widthMarble,
+    output reg [17:0] widthMarble,
     output reg        done_servo_marble // To Main SM 
    );
 
@@ -42,25 +43,25 @@ module Servo_Marble(
 
    // State machine
    always @(posedge clk)
-     begin
-        if (rst)
+    // begin
+        //if (rst)
           begin
              /*AUTORESET*/
              // Beginning of autoreset for uninitialized flops
-             widthMarble <= 20'h0;
-             count <= 2'h0;
-             count_delay <= 32'h0;
-             done_servo_marble <= 1'h0;
-             state <= 2'h0;
+             //widthMarble <= 20'h0;
+             //count <= 2'h0;
+             //count_delay <= 32'h0;
+             //done_servo_marble <= 1'h0;
+             //state <= 2'h0;
              // End of automatics
-          end  
-        else 
+          //end  
+       // else 
           if (enable_servo_marble && ~done_servo_marble)
             case(state)
               INIT_STATE:
                 begin
                    count <= count+1;
-                   if(count<=marble_sync)
+                   if(count<=marble_sync - 1)
                      state <= STATE_2;
                    else
                      begin

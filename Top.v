@@ -13,19 +13,17 @@ module Top(
    trig, seg, indicator, direction, an, LED15, LED14, LED13,
    servoMarble, servoArm, HBridgeEN,
    // Inputs
-   sensor, rst, echo, comparator, clk, MoistureCompMed,
+   //rst,
+   sensor, echo, comparator, clk, MoistureCompMed,
    MoistureCompHigh
 );
    input clk;
    input echo;
-   input rst;
+   //input rst;
    input [2:0] sensor;
    input comparator;
    input MoistureCompHigh; 
    input MoistureCompMed;
-   //input done_servo_arm,
-   //input done_servo_marble,
-   //output reg IPS_using_US,
    output servoMarble;
    output servoArm;
    output [1:0] HBridgeEN;
@@ -57,13 +55,13 @@ module Top(
    PWM #(16,65535) u00(
    .clk(clk),
    .width(widthChassis),
-   .pwm(HBridgeEN[1])
+   .pwm(HBridgeEN[0])
    );
    
    PWM #(16,65535) u01(
    .clk(clk),
    .width(widthChassis),
-   .pwm(HBridgeEN[2])
+   .pwm(HBridgeEN[1])
    );
    
    //Servo Marble
@@ -118,8 +116,8 @@ module Top(
         .clk(clk),
         .enable_servo_marble(enable_servo_marble),
         .marble(marble[1:0]),
-        .widthMarble(widthMarble[17:0]),
-        .rst(rst)
+        .widthMarble(widthMarble[17:0])
+        //.rst(rst)
         ); 
         
     Servo_Arm u09(

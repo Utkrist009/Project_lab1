@@ -10,7 +10,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 module Servo_Arm(
-input clk, reset,stop,
+input clk,stop,
 input enable_servo_arm, //sw 
 output reg done_servo_arm, //led
 output reg [17:0] widthArm

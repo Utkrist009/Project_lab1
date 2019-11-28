@@ -25,7 +25,7 @@ module SM
 
    localparam IPS = 0, ARM_SENSOR = 1, MARBLE_DROP = 2, IPS_NO_ULTRA = 3;
    
-   reg      state;
+   reg      [1:0] state;
    reg      [1:0] count;
    reg      [31:0] count_delay;
 
@@ -76,8 +76,8 @@ module SM
             if (done_servo_marble)
               begin
                  enable_servo_marble <= 0;
-                 state <= IPS_NO_ULTRA;
                  IPS_using_US <= 0;
+                 state <= IPS_NO_ULTRA;
               end
          end
 

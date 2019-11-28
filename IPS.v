@@ -33,13 +33,13 @@ always @(*)
 begin
     if(IPS_using_US && stop)
     begin
-        case(indicator)
-             3'b000: //Ultrasonic Found
-             begin
+       // case(indicator)
+          //   3'b000: //Ultrasonic Found
+             //begin
                   widthChassis = 16'd00000; //stop
                   direction = 4'b0000;//stop
-             end
-        endcase
+             //end
+        //endcase
     end
     else
     begin

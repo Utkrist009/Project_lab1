@@ -17,11 +17,13 @@ output reg [1:0] marble
 
 always @(*) 
   begin     
-         if (MoistureCompHigh == 1)
-             begin
+         //if (MoistureCompHigh && MoistureCompMed)
+           if (MoistureCompHigh == 1 )
+            begin
                LED15 = 1;  
                marble = 2'b01; //1 marble
              end
+        // else if (MoistureCompMed == 1 && MoistureCompHigh == 0)
         else if(MoistureCompMed == 1)
              begin
                 LED14 = 1;
@@ -31,7 +33,6 @@ always @(*)
             begin 
                 LED13 = 1;  
                 marble = 2'b11; //3 marbles
-           
            end
 end           
 endmodule
