@@ -8,15 +8,11 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 module Servo_Marble(
-    //input clk, rst,
-    input clk,
-    //input enable_servo_marble,//from Main SM
-    input sw, //for test of variable enable_servo_marble
-    input [1:0] marble,
-    //output reg [17:0] angle_value,
-    output enable_m, 
-    //output reg done_servo_marble // To Main SM 
-    output reg led //for test of variable done_servo_marble
+    input             clk, rst,
+    input             enable_servo_marble,//from Main SM
+    input [1:0]       marble,
+    output reg [19:0] widthMarble,
+    output reg        done_servo_marble // To Main SM 
    );
 
    // State definitions
@@ -25,7 +21,6 @@ module Servo_Marble(
    //localparam DELAY=100;
    localparam DELAY=200_000_000;
    
-   reg [17:0] angle_value = 18'd240000;
    reg [1:0] state;
    reg [1:0] count;
    reg [31:0] count_delay;
@@ -33,15 +28,13 @@ module Servo_Marble(
 
    initial
      begin
-        angle_value <= 0;
+        widthMarble <= 0;
         state <= 0;
         count <= 0;
         count_delay <= 0;
         marble_sync <= 0;
-        led <= 0;
+        done_servo_marble <= 0;
      end
-
-Servo_PWM test1 (.clk(clk), .angle_value(angle_value), .angle(enable_m)); 
 
    // D-Flip Flop
    always @ (posedge clk)
@@ -50,35 +43,34 @@ Servo_PWM test1 (.clk(clk), .angle_value(angle_value), .angle(enable_m));
    // State machine
    always @(posedge clk)
      begin
-//        if (rst)
-//          begin
-//             /*AUTORESET*/
-//             // Beginning of autoreset for uninitialized flops
-//             angle_value <= 20'h0;
-//             count <= 2'h0;
-//             count_delay <= 32'h0;
-//             led <= 1'h0;
-//             state <= 2'h0;
-//             // End of automatics
-//          end  
-//        else 
-
-          if (sw && ~led)
+        if (rst)
+          begin
+             /*AUTORESET*/
+             // Beginning of autoreset for uninitialized flops
+             widthMarble <= 20'h0;
+             count <= 2'h0;
+             count_delay <= 32'h0;
+             done_servo_marble <= 1'h0;
+             state <= 2'h0;
+             // End of automatics
+          end  
+        else 
+          if (enable_servo_marble && ~done_servo_marble)
             case(state)
               INIT_STATE:
                 begin
                    count <= count+1;
-                   if(count<=(marble_sync-1))
+                   if(count<=marble_sync)
                      state <= STATE_2;
                    else
                      begin
                         state <= INIT_STATE;
-                        led <= 1;
+                        done_servo_marble <= 1;
                      end
                 end
               STATE_2: 
                 begin
-                   angle_value <= 18'd240000;
+                   widthMarble <= 18'd240000;
                    count_delay <= count_delay + 1;
                    if(count_delay >= DELAY)
                      begin
@@ -89,7 +81,7 @@ Servo_PWM test1 (.clk(clk), .angle_value(angle_value), .angle(enable_m));
 
               STATE_3: 
                 begin 
-                   angle_value <= 18'd65000;
+                   widthMarble <= 18'd65000;
                    count_delay <= count_delay + 1;
                    if(count_delay >= DELAY)
                      begin
