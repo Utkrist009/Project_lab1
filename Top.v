@@ -13,13 +13,11 @@ module Top(
    trig, seg, indicator, direction, an, LED15, LED14, LED13,
    servoMarble, servoArm, HBridgeEN,
    // Inputs
-   //rst,
    sensor, echo, comparator, clk, MoistureCompMed,
    MoistureCompHigh
 );
    input clk;
    input echo;
-   //input rst;
    input [2:0] sensor;
    input comparator;
    input MoistureCompHigh; 
@@ -29,7 +27,6 @@ module Top(
    output [1:0] HBridgeEN;
    output [3:0] direction; 
    output [2:0] indicator;
-   //output [1:0] enable;
    output [3:0] an;
    output [6:0] seg;
    output trig; 
@@ -43,6 +40,8 @@ module Top(
    wire enable_servo_arm;
    wire enable_servo_marble;
    wire stop; 
+   wire reset_servo_marble;
+   wire reset_servo_arm;
    wire [1:0]  marble;
    wire [15:0] widthChassis; 
    wire [17:0] widthMarble;
@@ -87,6 +86,7 @@ module Top(
         .stop(stop),
         .widthChassis(widthChassis[15:0])
         );
+        
     Ultrasonic u05(
         .clk(clk),
         .echo(echo),
@@ -116,8 +116,8 @@ module Top(
         .clk(clk),
         .enable_servo_marble(enable_servo_marble),
         .marble(marble[1:0]),
-        .widthMarble(widthMarble[17:0])
-        //.rst(rst)
+        .widthMarble(widthMarble[17:0]),
+        .reset_servo_marble(reset_servo_marble)
         ); 
         
     Servo_Arm u09(
@@ -125,7 +125,9 @@ module Top(
       .enable_servo_arm(enable_servo_arm),
       .clk(clk),
       .stop(stop),
-      .widthArm(widthArm[17:0]));
+      .widthArm(widthArm[17:0]),
+      .reset_servo_arm(reset_servo_arm)
+      );
       
     SM u10(
     .IPS_using_US(IPS_using_US), //outputs
@@ -134,6 +136,9 @@ module Top(
     .clk(clk), //inputs
     .stop(stop),
     .done_servo_arm(done_servo_arm),
-    .done_servo_marble(done_servo_marble)
+    .done_servo_marble(done_servo_marble),
+    .reset_servo_marble(reset_servo_marble),
+    .reset_servo_arm(reset_servo_arm)
+    
  );
 endmodule

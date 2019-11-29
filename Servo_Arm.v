@@ -10,7 +10,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 module Servo_Arm(
-input clk,stop,
+input clk,stop, reset_servo_arm, 
 input enable_servo_arm, //sw 
 output reg done_servo_arm, //led
 output reg [17:0] widthArm
@@ -34,6 +34,18 @@ reg[2:0] Servo_FSM = 3'b000;
 delay_seconds test(.clk(clk), .limit(Seconds), .active(timerActive), .signal(timerDone));
 
  always @(posedge clk)
+ begin
+        if (reset_servo_arm)
+          begin
+             /*AUTORESET*/
+             // Beginning of autoreset for uninitialized flops
+             widthArm <= servo90d;
+             //count <= 2'h0;
+             //count_delay <= 32'h0;
+             done_servo_arm <= 1'h0;
+             Servo_FSM <= 3'b000;
+             // End of automatics
+          end  
     begin
         if (enable_servo_arm)
         case (Servo_FSM)
@@ -83,5 +95,6 @@ delay_seconds test(.clk(clk), .limit(Seconds), .active(timerActive), .signal(tim
     //end
 end 
 endcase 
+end 
 end 
 endmodule

@@ -10,17 +10,15 @@
 //////////////////////////////////////////////////////////////////////////////////
 module SM 
   (input  clk,
-   // Do you need a done from IPS? It's never really done, it's just stalled temporarily.
-   // The IPS module gets told to stop from the Ultrasonic module, doesn't it? Might be
-   // better to just use the stop signal from the Ultrasonic module instead
-   
    input      stop,
    input      done_servo_arm,
    input      done_servo_marble,
    // These all need to be registers if you're making procedural changes to them
    output reg IPS_using_US,
    output reg enable_servo_arm,
-   output reg enable_servo_marble
+   output reg enable_servo_marble,
+   output reg reset_servo_marble,
+   output reg reset_servo_arm 
    );
 
    localparam IPS = 0, ARM_SENSOR = 1, MARBLE_DROP = 2, IPS_NO_ULTRA = 3;
@@ -62,9 +60,11 @@ module SM
          begin 
             //arm will begin when enabled
             enable_servo_arm <= 1;
+             reset_servo_arm <= 0;
             if (done_servo_arm)
               begin
                  enable_servo_arm <= 0;
+                 reset_servo_arm <= 1;
                  state <= MARBLE_DROP;
               end
          end
@@ -73,11 +73,13 @@ module SM
          begin 
             //will dispense marbles when enabled
             enable_servo_marble <= 1;
+            reset_servo_marble <= 0;
             if (done_servo_marble)
               begin
                  enable_servo_marble <= 0;
-                 IPS_using_US <= 0;
+                 reset_servo_marble <= 1;
                  state <= IPS_NO_ULTRA;
+                 IPS_using_US <= 0;
               end
          end
 
